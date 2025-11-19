@@ -2,17 +2,20 @@ import { fetchBattlePokemons } from "@/lib/api";
 import { BattleBoard } from "@/components/game/battle-board";
 
 interface BattlePageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
-  // O Next.js injeta os query params aqui automaticamente
-  searchParams: {
+  }>;
+  searchParams: Promise<{
     player?: string;
-  };
+  }>;
 }
 
-export default async function BattlePage({ params, searchParams }: BattlePageProps) {
-  // Converte a string "25" para número 25 ou undefined
+export default async function BattlePage(props: BattlePageProps) {
+  // --- CORREÇÃO AQUI ---
+  // No Next.js 15, precisamos aguardar (await) os parametros antes de ler
+  const searchParams = await props.searchParams;
+  
+  // Agora conseguimos ler o .player
   const playerId = searchParams.player ? Number(searchParams.player) : undefined;
 
   // Passamos o ID escolhido para a função

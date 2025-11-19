@@ -1,11 +1,8 @@
-// src/app/page.tsx
-import { startBattle } from "@/actions";
-import { fetchStarterOptions } from "@/lib/api"; // <--- Importe isso
-import { PokemonSelector } from "@/components/game/pokemon-selector"; // <--- Importe isso
-import { Sword } from "lucide-react";
+import { fetchStarterOptions } from "@/lib/api";
+import { PokemonSelector } from "@/components/game/pokemon-selector";
 
 export default async function Home() {
-  // Busca os dados no servidor antes de renderizar
+  // Busca os dados no servidor
   const starters = await fetchStarterOptions();
 
   return (
@@ -21,20 +18,9 @@ export default async function Home() {
           <p className="text-slate-400">Monte sua estratégia e vença a CPU</p>
         </div>
 
-        {/* Formulário agora engloba o seletor */}
-        <form action={startBattle} className="w-full flex flex-col items-center gap-6">
-          
-          {/* O componente de escolha visual */}
-          <PokemonSelector starters={starters} />
-
-          <button
-            type="submit"
-            className="w-full max-w-md group relative px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-all hover:scale-105 hover:shadow-lg hover:shadow-indigo-500/50 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Sword className="w-6 h-6 group-hover:rotate-45 transition-transform" />
-            <span>INICIAR BATALHA</span>
-          </button>
-        </form>
+        {/* Agora chamamos apenas o componente, ele cuida de tudo */}
+        <PokemonSelector starters={starters} />
+        
       </div>
     </main>
   );
