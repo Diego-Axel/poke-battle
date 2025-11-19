@@ -70,18 +70,28 @@ export async function getPokemon(id: number): Promise<Pokemon> {
   }
 }
 
-export async function fetchBattlePokemons(): Promise<[Pokemon, Pokemon]> {
-  // Tenta IDs aleatórios
-  const id1 = getRandomId();
-  let id2 = getRandomId();
+// 1. NOVA FUNÇÃO: Busca os candidatos para o usuário escolher
+export async function fetchStarterOptions(): Promise<Pokemon[]> {
+  // Vamos dar 6 opções clássicas
+  const starterIds = [1, 4, 7, 25, 133, 150]; // Bulbasaur, Charmander, Squirtle, Pikachu, Eevee, Mewtwo
+  
+  // Busca todos em paralelo
+  return await Promise.all(starterIds.map(id => getPokemon(id)));
+}
 
-  while (id1 === id2) {
-    id2 = getRandomId();
+// 2. ATUALIZAR: Agora aceita um "playerId" opcional
+export async function fetchBattlePokemons(playerId?: number): Promise<[Pokemon, Pokemon]> {
+  // Se o usuário escolheu um ID, usamos ele. Se não, sorteamos.
+  const p1Id = playerId || getRandomId();
+  
+  let p2Id = getRandomId();
+
+  // Garante que a CPU não escolha o mesmo que o jogador
+  while (p1Id === p2Id) {
+    p2Id = getRandomId();
   }
 
-  // Se a API estiver fora do ar, o getPokemon vai capturar o erro 
-  // e retornar o Charizard e o Blastoise automaticamente.
-  const [poke1, poke2] = await Promise.all([getPokemon(id1), getPokemon(id2)]);
+  const [poke1, poke2] = await Promise.all([getPokemon(p1Id), getPokemon(p2Id)]);
 
   return [poke1, poke2];
 }
@@ -96,4 +106,23 @@ export async function fetchPokedex(): Promise<Pokemon[]> {
   const pokemons = await Promise.all(ids.map((id) => getPokemon(id)));
 
   return pokemons;
+}
+
+// NOVA FUNÇÃO: Busca a lista leve dos 151 primeiros
+export async function fetchGen1List(): Promise<Pokemon[]> {
+  const res = await fetch("https://pokeapi.co/api/v2/pokemon?limit=151");
+  const data = await res.json();
+
+  // Mapeia os resultados simples para o nosso formato
+  return data.results.map((entry: any, index: number) => {
+    const id = index + 1; // O index começa em 0, então somamos 1
+    return {
+      id: id,
+      name: entry.name,
+      // Geramos o link da imagem manualmente para não precisar fazer 151 requests
+      image: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`,
+      types: [], // Não precisamos disso na seleção
+      attributes: { hp: 0, attack: 0, defense: 0, speed: 0 } // Nem disso
+    };
+  });
 }
