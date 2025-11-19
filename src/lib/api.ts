@@ -70,18 +70,28 @@ export async function getPokemon(id: number): Promise<Pokemon> {
   }
 }
 
-export async function fetchBattlePokemons(): Promise<[Pokemon, Pokemon]> {
-  // Tenta IDs aleatórios
-  const id1 = getRandomId();
-  let id2 = getRandomId();
+// 1. NOVA FUNÇÃO: Busca os candidatos para o usuário escolher
+export async function fetchStarterOptions(): Promise<Pokemon[]> {
+  // Vamos dar 6 opções clássicas
+  const starterIds = [1, 4, 7, 25, 133, 150]; // Bulbasaur, Charmander, Squirtle, Pikachu, Eevee, Mewtwo
+  
+  // Busca todos em paralelo
+  return await Promise.all(starterIds.map(id => getPokemon(id)));
+}
 
-  while (id1 === id2) {
-    id2 = getRandomId();
+// 2. ATUALIZAR: Agora aceita um "playerId" opcional
+export async function fetchBattlePokemons(playerId?: number): Promise<[Pokemon, Pokemon]> {
+  // Se o usuário escolheu um ID, usamos ele. Se não, sorteamos.
+  const p1Id = playerId || getRandomId();
+  
+  let p2Id = getRandomId();
+
+  // Garante que a CPU não escolha o mesmo que o jogador
+  while (p1Id === p2Id) {
+    p2Id = getRandomId();
   }
 
-  // Se a API estiver fora do ar, o getPokemon vai capturar o erro 
-  // e retornar o Charizard e o Blastoise automaticamente.
-  const [poke1, poke2] = await Promise.all([getPokemon(id1), getPokemon(id2)]);
+  const [poke1, poke2] = await Promise.all([getPokemon(p1Id), getPokemon(p2Id)]);
 
   return [poke1, poke2];
 }
