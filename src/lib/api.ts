@@ -107,22 +107,3 @@ export async function fetchPokedex(): Promise<Pokemon[]> {
 
   return pokemons;
 }
-
-// NOVA FUNÇÃO: Busca a lista leve dos 151 primeiros
-export async function fetchGen1List(): Promise<Pokemon[]> {
-  const res = await fetch("https://pokeapi.co/api/v2/pokemon?limit=151");
-  const data = await res.json();
-
-  // Mapeia os resultados simples para o nosso formato
-  return data.results.map((entry: any, index: number) => {
-    const id = index + 1; // O index começa em 0, então somamos 1
-    return {
-      id: id,
-      name: entry.name,
-      // Geramos o link da imagem manualmente para não precisar fazer 151 requests
-      image: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`,
-      types: [], // Não precisamos disso na seleção
-      attributes: { hp: 0, attack: 0, defense: 0, speed: 0 } // Nem disso
-    };
-  });
-}
