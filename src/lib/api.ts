@@ -1,7 +1,6 @@
-// src/lib/api.ts
 import { Pokemon, PokemonAPIResponse } from "@/types";
 
-// Limitamos para a Geração 1 para ser mais leve
+// Limitei para a Geração 1 para ser mais leve
 const MAX_POKEMON_ID = 151;
 
 function getRandomId() {
@@ -72,7 +71,7 @@ export async function getPokemon(id: number): Promise<Pokemon> {
 
 // 1. NOVA FUNÇÃO: Busca os candidatos para o usuário escolher
 export async function fetchStarterOptions(): Promise<Pokemon[]> {
-  // Vamos dar 6 opções clássicas
+  // Dei 6 opções clássicas -> TESTES
   const starterIds = [1, 4, 7, 25, 133, 150]; // Bulbasaur, Charmander, Squirtle, Pikachu, Eevee, Mewtwo
   
   // Busca todos em paralelo
@@ -81,7 +80,7 @@ export async function fetchStarterOptions(): Promise<Pokemon[]> {
 
 // 2. ATUALIZAR: Agora aceita um "playerId" opcional
 export async function fetchBattlePokemons(playerId?: number): Promise<[Pokemon, Pokemon]> {
-  // Se o usuário escolheu um ID, usamos ele. Se não, sorteamos.
+  // Se o usuário escolheu um ID, usa ele. Se não, sorteia.
   const p1Id = playerId || getRandomId();
   
   let p2Id = getRandomId();
@@ -97,32 +96,13 @@ export async function fetchBattlePokemons(playerId?: number): Promise<[Pokemon, 
 }
 
 export async function fetchPokedex(): Promise<Pokemon[]> {
-  // Vamos buscar os iniciais (Bulbasaur, Charmander, Squirtle) + Pikachu + Mewtwo + Dragonite
+  // buscar os iniciais (Bulbasaur, Charmander, Squirtle) + Pikachu + Mewtwo + Dragonite
   const ids = [1, 4, 7, 25, 150, 149];
 
   // Busca todos em paralelo
-  // Como nossa função getPokemon já tem tratamento de erro, 
+  // Como na função getPokemon já tem tratamento de erro 
   // se a API falhar, ele vai retornar os "dublês" sem quebrar a build.
   const pokemons = await Promise.all(ids.map((id) => getPokemon(id)));
 
   return pokemons;
-}
-
-// NOVA FUNÇÃO: Busca a lista leve dos 151 primeiros
-export async function fetchGen1List(): Promise<Pokemon[]> {
-  const res = await fetch("https://pokeapi.co/api/v2/pokemon?limit=151");
-  const data = await res.json();
-
-  // Mapeia os resultados simples para o nosso formato
-  return data.results.map((entry: any, index: number) => {
-    const id = index + 1; // O index começa em 0, então somamos 1
-    return {
-      id: id,
-      name: entry.name,
-      // Geramos o link da imagem manualmente para não precisar fazer 151 requests
-      image: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`,
-      types: [], // Não precisamos disso na seleção
-      attributes: { hp: 0, attack: 0, defense: 0, speed: 0 } // Nem disso
-    };
-  });
 }

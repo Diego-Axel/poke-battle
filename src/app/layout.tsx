@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/components/layout/header"; // Importamos o Header
+import { Header } from "@/components/layout/header"; // Importei o Header
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,7 +21,7 @@ export default function RootLayout({
         {/* O Header fica aqui, fora do children, para aparecer sempre */}
         <Header />
         
-        {/* Adicionamos um padding-top (pt-16) para o conteúdo não ficar escondido atrás do Header fixo */}
+        {/* Adicionei um padding-top (pt-16) para o conteúdo não ficar escondido atrás do Header fixo */}
         <div className="pt-16">
           {children}
         </div>
