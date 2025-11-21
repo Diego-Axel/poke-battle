@@ -1,4 +1,3 @@
-// src/components/layout/header.tsx
 import Link from "next/link";
 import { Gamepad2, BookOpen } from "lucide-react";
 

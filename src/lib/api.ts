@@ -1,7 +1,6 @@
-// src/lib/api.ts
 import { Pokemon, PokemonAPIResponse } from "@/types";
 
-// Limitamos para a Geração 1 para ser mais leve
+// Limitei para a Geração 1 para ser mais leve
 const MAX_POKEMON_ID = 151;
 
 function getRandomId() {
@@ -72,7 +71,7 @@ export async function getPokemon(id: number): Promise<Pokemon> {
 
 // 1. NOVA FUNÇÃO: Busca os candidatos para o usuário escolher
 export async function fetchStarterOptions(): Promise<Pokemon[]> {
-  // Vamos dar 6 opções clássicas
+  // Dei 6 opções clássicas -> TESTES
   const starterIds = [1, 4, 7, 25, 133, 150]; // Bulbasaur, Charmander, Squirtle, Pikachu, Eevee, Mewtwo
   
   // Busca todos em paralelo
@@ -81,7 +80,7 @@ export async function fetchStarterOptions(): Promise<Pokemon[]> {
 
 // 2. ATUALIZAR: Agora aceita um "playerId" opcional
 export async function fetchBattlePokemons(playerId?: number): Promise<[Pokemon, Pokemon]> {
-  // Se o usuário escolheu um ID, usamos ele. Se não, sorteamos.
+  // Se o usuário escolheu um ID, usa ele. Se não, sorteia.
   const p1Id = playerId || getRandomId();
   
   let p2Id = getRandomId();
@@ -97,11 +96,11 @@ export async function fetchBattlePokemons(playerId?: number): Promise<[Pokemon, 
 }
 
 export async function fetchPokedex(): Promise<Pokemon[]> {
-  // Vamos buscar os iniciais (Bulbasaur, Charmander, Squirtle) + Pikachu + Mewtwo + Dragonite
+  // buscar os iniciais (Bulbasaur, Charmander, Squirtle) + Pikachu + Mewtwo + Dragonite
   const ids = [1, 4, 7, 25, 150, 149];
 
   // Busca todos em paralelo
-  // Como nossa função getPokemon já tem tratamento de erro, 
+  // Como na função getPokemon já tem tratamento de erro 
   // se a API falhar, ele vai retornar os "dublês" sem quebrar a build.
   const pokemons = await Promise.all(ids.map((id) => getPokemon(id)));
 

@@ -1,4 +1,3 @@
-// src/components/game/battle-board.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -40,7 +39,7 @@ export function BattleBoard({ playerPokemon, opponentPokemon }: BattleBoardProps
       setWins((prev) => prev + 1); // AQUI: Aumenta o contador se ganhar
     } else if (opponentValue > playerValue) {
       setWinner("opponent");
-      // Não zeramos aqui para mostrar o score final na tela de derrota
+      // Não zero aqui para mostrar o score final na tela de derrota
     } else {
       setWinner("draw");
     }

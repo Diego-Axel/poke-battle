@@ -18,7 +18,6 @@ export default async function Home() {
           <p className="text-slate-400">Monte sua estratégia e vença a CPU</p>
         </div>
 
-        {/* Agora chamamos apenas o componente, ele cuida de tudo */}
         <PokemonSelector starters={starters} />
         
       </div>
