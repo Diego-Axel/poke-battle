@@ -11,7 +11,8 @@ function formatPokemonData(data: PokemonAPIResponse): Pokemon {
   return {
     id: data.id,
     name: data.name,
-    image: data.sprites.other["official-artwork"].front_default,
+    // MUDANÇA AQUI: Usando o sprite animado da Geração 5 (Black/White)
+    image: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${data.id}.gif`,
     types: data.types.map((t) => t.type.name),
     attributes: {
       hp: data.stats.find((s) => s.stat.name === "hp")?.base_stat || 50,
@@ -23,19 +24,19 @@ function formatPokemonData(data: PokemonAPIResponse): Pokemon {
 }
 
 // --- DADOS DE SEGURANÇA (FALLBACK) ---
-// Se a API falhar, usamos estes dados para o jogo não quebrar
+// Atualizei também os fallbacks para serem animados
 const FALLBACK_POKEMONS: Record<number, Pokemon> = {
   1: {
     id: 6,
     name: "charizard (offline)",
-    image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png",
+    image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/6.gif",
     types: ["fire", "flying"],
     attributes: { hp: 78, attack: 84, defense: 78, speed: 100 }
   },
   2: {
     id: 9,
     name: "blastoise (offline)",
-    image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/9.png",
+    image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/9.gif",
     types: ["water"],
     attributes: { hp: 79, attack: 83, defense: 100, speed: 78 }
   }
@@ -43,7 +44,6 @@ const FALLBACK_POKEMONS: Record<number, Pokemon> = {
 
 export async function getPokemon(id: number): Promise<Pokemon> {
   try {
-    // Tenta buscar na API com timeout de 5 segundos (para não ficar travado carregando)
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000);
 
@@ -63,29 +63,14 @@ export async function getPokemon(id: number): Promise<Pokemon> {
 
   } catch (error) {
     console.error(`Erro ao buscar ID ${id}. Usando Fallback.`, error);
-    
-    // Se deu erro, retorna um dos pokémons de backup baseado se o ID é par ou ímpar
     return id % 2 === 0 ? FALLBACK_POKEMONS[2] : FALLBACK_POKEMONS[1];
   }
 }
 
-// 1. NOVA FUNÇÃO: Busca os candidatos para o usuário escolher
-export async function fetchStarterOptions(): Promise<Pokemon[]> {
-  // Dei 6 opções clássicas -> TESTES
-  const starterIds = [1, 4, 7, 25, 133, 150]; // Bulbasaur, Charmander, Squirtle, Pikachu, Eevee, Mewtwo
-  
-  // Busca todos em paralelo
-  return await Promise.all(starterIds.map(id => getPokemon(id)));
-}
-
-// 2. ATUALIZAR: Agora aceita um "playerId" opcional
 export async function fetchBattlePokemons(playerId?: number): Promise<[Pokemon, Pokemon]> {
-  // Se o usuário escolheu um ID, usa ele. Se não, sorteia.
   const p1Id = playerId || getRandomId();
-  
   let p2Id = getRandomId();
 
-  // Garante que a CPU não escolha o mesmo que o jogador
   while (p1Id === p2Id) {
     p2Id = getRandomId();
   }
@@ -96,13 +81,29 @@ export async function fetchBattlePokemons(playerId?: number): Promise<[Pokemon, 
 }
 
 export async function fetchPokedex(): Promise<Pokemon[]> {
-  // buscar os iniciais (Bulbasaur, Charmander, Squirtle) + Pikachu + Mewtwo + Dragonite
   const ids = [1, 4, 7, 25, 150, 149];
-
-  // Busca todos em paralelo
-  // Como na função getPokemon já tem tratamento de erro 
-  // se a API falhar, ele vai retornar os "dublês" sem quebrar a build.
   const pokemons = await Promise.all(ids.map((id) => getPokemon(id)));
-
   return pokemons;
+}
+
+// AQUI TAMBÉM: Atualizei a lista de seleção para mostrar animados
+export async function fetchGen1List(): Promise<Pokemon[]> {
+  const res = await fetch("https://pokeapi.co/api/v2/pokemon?limit=151");
+  const data = await res.json();
+
+  const allowedIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 25, 133, 150];
+
+  const allPokemons = data.results.map((entry: { name: string; url: string }, index: number) => {
+    const id = index + 1;
+    return {
+      id: id,
+      name: entry.name,
+      // MUDANÇA DO LINK AQUI TAMBÉM
+      image: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${id}.gif`,
+      types: [], 
+      attributes: { hp: 0, attack: 0, defense: 0, speed: 0 } 
+    };
+  });
+
+  return allPokemons.filter((p: Pokemon) => allowedIds.includes(p.id));
 }

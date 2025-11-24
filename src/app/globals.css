@@ -46,3 +46,7 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #475569;
 }
+
+img {
+  image-rendering: pixelated; /* Força o navegador a não borrar os pixels */
+}
