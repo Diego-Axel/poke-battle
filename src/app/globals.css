@@ -2,6 +2,7 @@
 @import "tailwindcss";
 
 :root {
+  /* Cores base escuras (Deep Navy) */
   --background: #020617; 
   --foreground: #f8fafc;
 }
@@ -16,23 +17,22 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
   
-  /* Fundo "Arena" */
+  /* O TRUQUE DA ARENA: Gradiente Vermelho vs Azul */
   background-image: 
+    /* Luz Vermelha no topo esquerdo */
     radial-gradient(circle at 0% 0%, rgba(220, 38, 38, 0.25) 0%, transparent 50%),
+    /* Luz Azul no fundo direito */
     radial-gradient(circle at 100% 100%, rgba(37, 99, 235, 0.25) 0%, transparent 50%),
+    /* Grade sutil para dar ar tecnológico */
     linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
     
   background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
-  background-attachment: fixed;
+  background-attachment: fixed; /* O fundo fica fixo enquanto você rola */
   min-height: 100vh;
 }
 
-/* Imagens Pixeladas (Crocantes) */
-img {
-  image-rendering: pixelated;
-}
-
+/* Estilização da Scrollbar para combinar */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -47,29 +47,6 @@ img {
   background: #475569;
 }
 
-/* --- NOVAS ANIMAÇÕES DE BATALHA --- */
-
-/* Animação de Dano (Tremer e Piscar Vermelho) */
-@keyframes shake-hit {
-  0% { transform: translate(0, 0) rotate(0deg); filter: brightness(1); }
-  25% { transform: translate(-10px, 5px) rotate(-5deg); filter: brightness(2) sepia(1) hue-rotate(-50deg) saturate(5); } /* Flash Vermelho */
-  50% { transform: translate(10px, -5px) rotate(5deg); filter: brightness(1); }
-  75% { transform: translate(-10px, 5px) rotate(-5deg); }
-  100% { transform: translate(0, 0) rotate(0deg); }
-}
-
-/* Animação de Ataque (Avançar) */
-@keyframes attack-lung {
-  0% { transform: scale(1) translateY(0); z-index: 10; }
-  50% { transform: scale(1.2) translateY(-20px); z-index: 50; } /* Cresce e sobe */
-  100% { transform: scale(1) translateY(0); z-index: 10; }
-}
-
-/* Classes utilitárias para usar no React */
-.animate-hit {
-  animation: shake-hit 0.5s cubic-bezier(.36,.07,.19,.97) both;
-}
-
-.animate-attack {
-  animation: attack-lung 0.4s ease-out;
+img {
+  image-rendering: pixelated; /* Força o navegador a não borrar os pixels */
 }

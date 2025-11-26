@@ -1,4 +1,3 @@
-// src/components/game/battle-board.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -18,16 +17,15 @@ export function BattleBoard({ playerPokemon, opponentPokemon }: BattleBoardProps
   const [isRevealed, setIsRevealed] = useState(false);
   const [winner, setWinner] = useState<"player" | "opponent" | "draw" | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // NOVO ESTADO: Contador de Vitórias
   const [wins, setWins] = useState(0);
 
-  // NOVO: Estado para controlar qual animação está tocando
-  const [animationState, setAnimationState] = useState<"none" | "player-atk" | "opponent-atk">("none");
-
+  // Resetar quando o oponente muda
   useEffect(() => {
     setWinner(null);
     setIsRevealed(false);
     setIsLoading(false);
-    setAnimationState("none"); // Limpa animações ao mudar oponente
   }, [opponentPokemon?.id]);
 
   function handleAttack(attribute: keyof Pokemon["attributes"]) {
@@ -36,16 +34,13 @@ export function BattleBoard({ playerPokemon, opponentPokemon }: BattleBoardProps
 
     setIsRevealed(true);
 
-    // Lógica da Animação e Vitória
     if (playerValue > opponentValue) {
-      setAnimationState("player-atk"); // Jogador ataca
-      setTimeout(() => setWinner("player"), 400); // Atrasa o resultado para a animação ocorrer
-      setWins((prev) => prev + 1);
+      setWinner("player");
+      setWins((prev) => prev + 1); // AQUI: Aumenta o contador se ganhar
     } else if (opponentValue > playerValue) {
-      setAnimationState("opponent-atk"); // Oponente ataca
-      setTimeout(() => setWinner("opponent"), 400);
+      setWinner("opponent");
+      // Não zero aqui para mostrar o score final na tela de derrota
     } else {
-      setAnimationState("none"); // Empate não tem ataque
       setWinner("draw");
     }
   }
@@ -62,14 +57,14 @@ export function BattleBoard({ playerPokemon, opponentPokemon }: BattleBoardProps
   function handleRematch() {
     setWinner(null);
     setIsRevealed(false);
-    setAnimationState("none");
   }
 
   return (
     <div className="relative flex flex-col items-center justify-center w-full max-w-6xl mx-auto gap-12">
       
-      {/* Placar de Vitórias */}
-      <div className="absolute -top-20 right-4 md:right-0 flex items-center gap-3 bg-slate-900/80 backdrop-blur-md px-6 py-3 rounded-full border border-yellow-500/30 shadow-xl z-50">
+      {/* PLACAR DE VITÓRIAS (NOVO) */}
+      {/* Fica no topo direito, destacado */}
+      <div className="absolute -top-20 right-4 md:right-0 flex items-center gap-3 bg-slate-900/80 backdrop-blur-md px-6 py-3 rounded-full border border-yellow-500/30 shadow-xl">
         <div className="bg-yellow-500/20 p-2 rounded-full">
             <Flame className="text-yellow-500 fill-yellow-500 animate-pulse" size={24} />
         </div>
@@ -79,7 +74,7 @@ export function BattleBoard({ playerPokemon, opponentPokemon }: BattleBoardProps
         </div>
       </div>
 
-      {/* Área de Status */}
+      {/* Área de Status da Rodada */}
       <div className="h-24 flex items-center justify-center w-full">
         {!winner ? (
           <h2 className="text-2xl text-slate-300 animate-pulse font-light text-center">
@@ -103,13 +98,10 @@ export function BattleBoard({ playerPokemon, opponentPokemon }: BattleBoardProps
       </div>
 
       <div className="flex flex-col md:flex-row items-center gap-8 md:gap-24">
-        {/* WRAPPER JOGADOR: Recebe classes de animação */}
-        <div className={cn(
-            "relative group transition-all duration-300",
-            animationState === "player-atk" && "animate-attack", // Se eu ataco
-            animationState === "opponent-atk" && "animate-hit"   // Se eu apanho
-        )}>
+        {/* Jogador */}
+        <div className="relative group">
             <div className="absolute -top-12 left-0 right-0 text-center text-blue-400 font-bold tracking-widest">VOCÊ</div>
+            {/* Efeito visual se estiver ganhando muito */}
             {wins > 2 && (
                 <div className="absolute -inset-4 bg-yellow-500/20 rounded-[2rem] blur-xl animate-pulse -z-10" />
             )}
@@ -123,12 +115,8 @@ export function BattleBoard({ playerPokemon, opponentPokemon }: BattleBoardProps
 
         <div className="text-4xl font-black text-slate-700 italic">VS</div>
 
-        {/* WRAPPER OPONENTE: Recebe classes de animação */}
-        <div className={cn(
-            "relative transition-all duration-300",
-            animationState === "opponent-atk" && "animate-attack", // Se ele ataca
-            animationState === "player-atk" && "animate-hit"       // Se ele apanha
-        )}>
+        {/* Oponente */}
+        <div className="relative">
             <div className="absolute -top-12 left-0 right-0 text-center text-red-400 font-bold tracking-widest">CPU</div>
             <PokemonCard 
                 pokemon={opponentPokemon} 
@@ -138,32 +126,52 @@ export function BattleBoard({ playerPokemon, opponentPokemon }: BattleBoardProps
         </div>
       </div>
 
-      {/* Botões (Mantive igual) */}
+      {/* Botões Condicionais */}
       {winner && (
         <div className="mt-8 animate-in slide-in-from-bottom-4 fade-in duration-500">
           
+          {/* Vitória */}
           {winner === "player" && (
             <button
               onClick={handleContinue}
               disabled={isLoading}
-              className="px-12 py-4 bg-green-600 hover:bg-green-500 text-white rounded-2xl font-bold text-xl flex items-center gap-3 transition-all hover:scale-105 shadow-lg shadow-green-500/30"
+              className="px-12 py-4 bg-green-600 hover:bg-green-500 text-whiteyb rounded-2xl font-bold text-xl flex items-center gap-3 transition-all hover:scale-105 shadow-lg shadow-green-500/30 text-white"
             >
-              {isLoading ? <span>Procurando...</span> : <><Swords size={28} /> Continuar (Vitória #{wins + 1})</>}
+              {isLoading ? (
+                <span>Procurando Oponente...</span>
+              ) : (
+                <>
+                  <Swords size={28} />
+                  Continuar (Vitória #{wins + 1})
+                </>
+              )}
             </button>
           )}
 
+          {/* Derrota */}
           {winner === "opponent" && (
             <div className="flex flex-col items-center gap-4">
-              <p className="text-slate-400 text-sm">Fim de jogo! Sequência: {wins}</p>
-              <button onClick={handleExit} className="px-12 py-4 bg-red-600 hover:bg-red-500 text-white rounded-2xl font-bold text-xl flex items-center gap-3 transition-all hover:scale-105 shadow-lg shadow-red-500/30">
-                <LogOut size={28} /> Sair
+              <p className="text-slate-400 text-sm">
+                Fim de jogo! Você conseguiu {wins} vitória{wins !== 1 && "s"} consecutiva{wins !== 1 && "s"}.
+              </p>
+              <button
+                onClick={handleExit}
+                className="px-12 py-4 bg-red-600 hover:bg-red-500 text-white rounded-2xl font-bold text-xl flex items-center gap-3 transition-all hover:scale-105 shadow-lg shadow-red-500/30"
+              >
+                <LogOut size={28} />
+                Sair da Batalha
               </button>
             </div>
           )}
 
+          {/* Empate */}
           {winner === "draw" && (
-            <button onClick={handleRematch} className="px-8 py-3 bg-yellow-600 hover:bg-yellow-500 text-white rounded-xl font-bold flex items-center gap-2 transition-all hover:scale-105">
-              <RotateCcw size={20} /> Desempatar
+            <button
+              onClick={handleRematch}
+              className="px-8 py-3 bg-yellow-600 hover:bg-yellow-500 text-white rounded-xl font-bold flex items-center gap-2 transition-all hover:scale-105"
+            >
+              <RotateCcw size={20} />
+              Desempatar
             </button>
           )}
 
